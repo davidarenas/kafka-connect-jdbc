@@ -47,6 +47,7 @@ public class TableMonitorThreadTest {
   private static final List<String> FIRST_TOPIC_LIST = Arrays.asList("foo");
   private static final List<String> SECOND_TOPIC_LIST = Arrays.asList("foo", "bar");
   private static final List<String> THIRD_TOPIC_LIST = Arrays.asList("foo", "bar", "baz");
+  private static final List<String> THIRD_TOPIC_SCHEMA_LIST = Arrays.asList("test.foo", "test.bar", "test2.baz", "test2.qux");
 
   private EmbeddedDerby db;
   private Connection dbConn;
@@ -128,6 +129,28 @@ public class TableMonitorThreadTest {
     tableMonitorThread.start();
     tableMonitorThread.join();
     assertEquals(Arrays.asList("foo"), tableMonitorThread.tables());
+
+    PowerMock.verifyAll();
+  }
+
+  @Test
+  public void testSchemaTableFilter() throws Exception {
+    tableMonitorThread = new TableMonitorThread(dbConn, context, POLL_INTERVAL,
+                                                 new HashSet<>(Arrays.asList("test.*", "qux")), null);
+
+    EasyMock.expect(JdbcUtils.getTables(dbConn)).andAnswer(new IAnswer<List<String>>() {
+      @Override
+      public List<String> answer() throws Throwable {
+        tableMonitorThread.shutdown();
+        return THIRD_TOPIC_SCHEMA_LIST;
+      }
+    });
+
+    PowerMock.replayAll();
+
+    tableMonitorThread.start();
+    tableMonitorThread.join();
+    assertEquals(Arrays.asList("test.foo", "test.bar", "test2.qux"), tableMonitorThread.tables());
 
     PowerMock.verifyAll();
   }

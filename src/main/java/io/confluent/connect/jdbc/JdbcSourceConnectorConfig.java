@@ -83,12 +83,20 @@ public class JdbcSourceConnectorConfig extends AbstractConfig {
 
   public static final String TABLE_WHITELIST_CONFIG = "table.whitelist";
   private static final String TABLE_WHITELIST_DOC =
-      "List of tables to include in copying. If specified, table.blacklist may not be set.";
+     "List of tables to include in copying. You may specify a schema for the tables to be included. Options: \n"
+      + "  * table - just the table name will be included on any schema \n"
+      + "  * schema.table - will only include the table name within the schema \n"
+      + "  * schema.* - includes all tables within a schema \n"
+      + "If specified, table.blacklist may not be set.";
   public static final String TABLE_WHITELIST_DEFAULT = "";
 
   public static final String TABLE_BLACKLIST_CONFIG = "table.blacklist";
   private static final String TABLE_BLACKLIST_DOC =
-      "List of tables to exclude from copying. If specified, table.whitelist may not be set.";
+      "List of tables to exclude from copying. You may specify a schema for the tables to be excluded. Options: \n"
+      + "  * table - just the table name will be excluded on any schema \n"
+      + "  * schema.table - will only exclude the table name within the schema \n"
+      + "  * schema.* - excludes all tables within a schema \n"
+      +"If specified, table.whitelist may not be set.";
   public static final String TABLE_BLACKLIST_DEFAULT = "";
 
   public static final String QUERY_CONFIG = "query";

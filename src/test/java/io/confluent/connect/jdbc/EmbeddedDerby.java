@@ -136,6 +136,15 @@ public class EmbeddedDerby {
   }
 
   /**
+   * Create a schema
+   *
+   * @param name name of the schema
+   */
+  public void createSchema(String name) throws SQLException {
+    execute("CREATE SCHEMA \"" + name + "\"");
+  }
+
+  /**
    * Drop a table.
    * @param name
    */

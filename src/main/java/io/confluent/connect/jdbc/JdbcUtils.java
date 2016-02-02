@@ -53,6 +53,7 @@ public class JdbcUtils {
 
   private static final int GET_TABLES_TYPE_COLUMN = 4;
   private static final int GET_TABLES_NAME_COLUMN = 3;
+  private static final int GET_SCHEMAS_NAME_COLUMN = 2;
 
   private static final int GET_COLUMNS_COLUMN_NAME = 4;
   private static final int GET_COLUMNS_IS_NULLABLE = 18;
@@ -91,13 +92,14 @@ public class JdbcUtils {
     List<String> tableNames = new ArrayList<String>();
     while (rs.next()) {
       if (types.contains(rs.getString(GET_TABLES_TYPE_COLUMN))) {
+        String schemaName = rs.getString(GET_SCHEMAS_NAME_COLUMN);
         String colName = rs.getString(GET_TABLES_NAME_COLUMN);
         // SQLite JDBC driver does not correctly mark these as system tables
         if (metadata.getDatabaseProductName().equals("SQLite") && colName.startsWith("sqlite_")) {
           continue;
         }
 
-        tableNames.add(colName);
+        tableNames.add(schemaName+"."+colName);
       }
     }
     return tableNames;
@@ -192,6 +194,34 @@ public class JdbcUtils {
    */
   public static String quoteString(String orig, String quote) {
     return quote + orig + quote;
+  }
+
+
+  /**
+   * Find if schema.table is contained within the table filterlist which can contain(schema.*, schema.table, table)
+   * @param filterList
+   * @param schemaTable
+   * @return
+   */
+  public static Boolean schemaTableContainedInList(Set<String> filterList, String schemaTable) {
+    String[] schemaTableSplit = schemaTable.split("\\.");
+    for (String filterTable : filterList) {
+      if (filterTable.equals(schemaTable)) {
+        return true;
+      }
+      String[] splitFilterTable = filterTable.split("\\.");
+
+      //No Schema specified for table
+      if (splitFilterTable.length < 2) {
+        if (splitFilterTable[0].equals(schemaTableSplit[1])) {
+          return true;
+        }
+      } else if (splitFilterTable[1].equals("*") && schemaTableSplit[0].equals(splitFilterTable[0])) {
+        return true;
+      }
+
+    }
+    return false;
   }
 }
 

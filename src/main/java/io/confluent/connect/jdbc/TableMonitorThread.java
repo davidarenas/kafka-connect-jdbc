@@ -113,14 +113,14 @@ public class TableMonitorThread extends Thread {
       if (whitelist != null) {
         filteredTables = new ArrayList<>(tables.size());
         for (String table : tables) {
-          if (whitelist.contains(table)) {
+          if (JdbcUtils.schemaTableContainedInList(whitelist, table)) {
             filteredTables.add(table);
           }
         }
       } else if (blacklist != null) {
         filteredTables = new ArrayList<>(tables.size());
         for (String table : tables) {
-          if (!blacklist.contains(table)) {
+          if (!JdbcUtils.schemaTableContainedInList(blacklist, table)) {
             filteredTables.add(table);
           }
         }
